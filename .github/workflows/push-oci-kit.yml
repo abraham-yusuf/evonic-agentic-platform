@@ -1,0 +1,76 @@
+name: Push OCI Kit to GHCR
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Kit version"
+        required: false
+        default: v1
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - spec.yaml
+      - .github/workflows/push-oci-kit.yml
+
+jobs:
+  push-oci:
+    runs-on: ubuntu-latest
+    permissions: packages: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Calculate SHA256
+        run: |
+          echo "sha256=$(sha256sum spec.yaml | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "size=$(stat --printf='%s' spec.yaml)" >> $GITHUB_ENV
+      
+      - name: Upload blob
+        run: |
+          LOCATION=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/octet-stream" \
+            "https://ghcr.io/v2/abraham-yusuf/evonic-agentic-kit/blobs/uploads/")
+          
+          curl -s -X PUT \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @spec.yaml \
+            "$LOCATION?digest=sha256:${{ env.sha256 }}"
+      
+      - name: Get digest
+        id: digest
+        run: |
+          DIGEST=$(curl -s -I \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://ghcr.io/v2/abraham-yusuf/evonic-agentic-kit/blobs/sha256:${{ env.sha256 }}" \
+            | grep -i "docker-content-digest" | cut -d':' -f2 | tr -d '\r')
+          echo "DIGEST=$DIGEST" >> $GITHUB_OUTPUT
+      
+      - name: Create manifest
+        run: |
+          cat > manifest.json << MANIFEST
+          {"schemaVersion":2,"mediaType":"application/vnd.docker.distribution.manifest.v2+json","config":{"mediaType":"application/vnd.docker.container.image.v1+json","size":${{ env.size }}, "digest":"${{ steps.digest.outputs.DIGEST }}},"layers":[]}
+          MANIFEST
+      
+      - name: Tag as latest
+        run: |
+          curl -s -X PUT \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data-binary @manifest.json \
+            "https://ghcr.io/v2/abraham-yusuf/evonic-agentic-kit/manifests/latest"
+      
+      - name: Success message
+        run: |
+          echo "✅ OCI Kit pushed!"
+          echo "ghcr.io/abraham-yusuf/evonic-agentic-kit:v${{ inputs.tag || '1' }}"

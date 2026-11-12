@@ -1,0 +1,96 @@
+schemaVersion: "2"
+kind: sandbox
+name: evonic-agentic-platform
+version: "1.0.0"
+displayName: "Evonic Agentic AI Platform"
+description: |
+  Full-stack AI agent platform based on Evonic v1.6.x.
+  Runs Flask dashboard at HTTP 8080 with HCNSEC Qwen integration.
+sourceURL: "https://github.com/abraham-yusuf/evonic-agentic-platform"
+
+sandbox:
+  # Use the image we built in GitHub Actions
+  image: ghcr.io/abraham-yusuf/evonic-agentic-platform:latest
+  
+  # Port exposure for dashboard access
+  ports:
+    - container: 8080
+      protocol: tcp
+    - container: 8081
+      protocol: tcp
+
+  # Resources for Medium compute (from your screenshot)
+  resources:
+    cpu: 4
+    memory: 8g
+
+permissions:
+  network:
+    # Allow outbound to HCNSEC LLM API
+    allow:
+      - api.hcnsec.cn
+      - github.com
+      - objects.githubusercontent.com
+    deny: []
+
+credentials:
+  # ANTHROPIC_API_KEY — for Claude support (optional if you don't use it)
+  - service: anthropic-api
+    description: "Anthropic API key for Claude Code"
+    apiKey:
+      name: ANTHROPIC_API_KEY
+      proxyManaged: false
+      inject:
+        - domain: api.anthropic.com
+          header: x-api-key
+
+  # OpenRouter/OpenAI-compatible keys
+  - service: openai-api
+    description: "OpenAI/HCNSEC API key"
+    apiKey:
+      name: OPENAI_API_KEY
+      proxyManaged: false
+      inject:
+        - domain: api.openai.com
+          header: Authorization
+        - domain: api.hcnsec.cn
+          header: Authorization
+
+setup:
+  install:
+    # Pre-install common tools in case they're not in base image
+    - apt-get update && apt-get install -y jq curl wget
+    - pip install --upgrade pip || true
+
+execution:
+  startup:
+    # Start the Flask server
+    - python app.py
+
+# Agent instructions for AI behavior tuning (optional)
+agentInstructions:
+  filename: .evonic-agent-profile.md
+  content: |
+    # Evonic Platform Profile
+
+    You are running Evonic Agentic AI Platform v1.6.x.
+
+    ## Environment
+    - Dashboard accessible at: http://localhost:8080
+    - Database stored at: /home/evonic/shared/db/evonic.db
+    - Logs at: /home/evonic/logs/
+
+    ## Capabilities
+    - Supports multiple agents: coder, devops, sysadmin, pentester, etc.
+    - Sandbox mode enabled for bash/runpy tools (bwrap backend)
+    - HMADS safety system active
+
+    ## Constraints
+    - No Docker-in-Docker by default (SANDBOX_BACKEND=bwrap or sandbox_enabled=0)
+    - Network egress controlled via permissions.network.allow
+    
+    ## Usage Tips
+    - Use the web dashboard for agent creation and management
+    - API keys injected via credentials section
+    - For local development: use `docker-compose up --build` instead of cloud sandbox
+

@@ -1,0 +1,86 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Evonic — Docker Compose for Agentic Platform Sandbox Kit
+#
+# Usage:
+#   1. cp .env.example .env        # then edit .env (API key, SECRET_KEY)
+#   2. docker compose up --build  # dev mode (foreground logs)
+#   3. docker compose up -d       # production mode (background)
+#
+# Access: http://localhost:8080
+# Default admin password logged on first start → check container logs:
+#   docker compose logs | grep password
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  evonic:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+      args:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    container_name: evonic-agentic-platform
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:8080"
+      - "${CONNECTOR_WS_PORT:-8081}:8081"
+    environment:
+      # Pass all .env vars
+      HOST: "${HOST:-0.0.0.0}"
+      PORT: "${PORT:-8080}"
+      CONNECTOR_WS_PORT: "${CONNECTOR_WS_PORT:-8081}"
+      LLM_BASE_URL: "${LLM_BASE_URL:-}"
+      LLM_MODEL_NAME: "${LLM_MODEL_NAME:-}"
+      LLM_API_KEY: "${LLM_API_KEY:-}"
+      SECRET_KEY: "${SECRET_KEY:-}"
+      SANDBOX_BACKEND: "${SANDBOX_BACKEND:-bwrap}"
+      SANDBOX_WORKSPACE: "${SANDBOX_WORKSPACE:-/home/evonic}"
+      SANDBOX_IDLE_TIMEOUT: "${SANDBOX_IDLE_TIMEOUT:-3600}"
+      SANDBOX_MEMORY_LIMIT: "${SANDBOX_MEMORY_LIMIT:-512m}"
+      SANDBOX_CPU_LIMIT: "${SANDBOX_CPU_LIMIT:-1}"
+      SANDBOX_NETWORK: "${SANDBOX_NETWORK:-bridge}"
+      SANDBOX_MAX_CONTAINERS: "${SANDBOX_MAX_CONTAINERS:-5}"
+      SANDBOX_BWRAP_ULIMIT_V_MB: "${SANDBOX_BWRAP_ULIMIT_V_MB:-256}"
+      SHARED_DB_DIR: "${SHARED_DB_DIR:-/home/evonic/shared}"
+      EVONET_ENABLED: "${EVONET_ENABLED:-0}"
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+      LOG_DIR: "${LOG_DIR:-/home/evonic/logs}"
+      ENABLE_AGENT_STATE: "${ENABLE_AGENT_STATE:-1}"
+      ARTIFACTS_ENABLED: "${ARTIFACTS_ENABLED:-1}"
+      ATTACHMENTS_ENABLED: "${ATTACHMENTS_ENABLED:-1}"
+      VISION_ENABLED: "${VISION_ENABLED:-1}"
+      HMADS_SAFE_THRESHOLD: "${HMADS_SAFE_THRESHOLD:-3}"
+      HMADS_WARNING_THRESHOLD: "${HMADS_WARNING_THRESHOLD:-7}"
+      HMADS_APPROVAL_THRESHOLD: "${HMADS_APPROVAL_THRESHOLD:-14}"
+      PAIRING_CODE_EXPIRY_MINUTES: "${PAIRING_CODE_EXPIRY_MINUTES:-5}"
+    volumes:
+      # Persist database and agent state across restarts
+      evonic-db:/home/evonic/shared
+      # Persist logs if you want to tail them externally
+      evonic-logs:/home/evonic/logs
+      # Optional: mount a workspace dir for file tools
+      # evonic-workspace:/home/evonic/workspace
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Resource limits (tune to your budget)
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    # Network: isolate from host, allow outbound
+    network_mode: bridge
+
+volumes:
+  evonic-db:          # shared/db/ — SQLite DB, templates, configs
+  evonic-logs:        # logs/ — rotated server logs
+  # evonic-workspace: # uncomment if you want persistent workspace files

@@ -1,0 +1,68 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .dockerignore — exclude what shouldn't go into the Docker build context
+# Reduces image size and build time.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Python artifacts (rebuilt inside Docker) ───────────────────────────────────
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyc
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ── Version control ──────────────────────────────────────────────────────────
+.git/
+.gitignore
+.githooks/
+.github/
+
+# ── Evonic generated state (rebuilt fresh in container) ──────────────────────
+data/
+logs/
+state/
+shared/
+.evonic_shared/
+
+# ── IDE / editor ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Documentation & extras ────────────────────────────────────────────────────
+*.md
+CHANGELOG.md
+LICENSE
+COMMERCIAL.md
+NOTICE
+VERSION
+
+# ── Tests & dev artifacts ─────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.log
+*.tmp
+unit_tests/
+evaluator/
+custom_tests/
+custom_evaluators/
+
+# ── Large media / archives ────────────────────────────────────────────────────
+*.zip
+*.tar
+*.tar.gz
+*.mp4
+*.mov
+
+# ── Docker kit itself (don't recurse into this dir) ──────────────────────────
+evonic-docker-kit/
+
+# ── Node/npm (if ever added) ─────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
