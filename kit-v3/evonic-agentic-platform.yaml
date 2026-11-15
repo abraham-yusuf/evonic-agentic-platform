@@ -18,6 +18,8 @@ args:
 provides: ["evonic-agent@0.1.0"]
 
 capabilities:
+  - type: com.docker.sandbox/sbx@1
+
   - type: com.docker.sandbox/port@1
     description: Evonic dashboard
     config: {name: http, container: 8080}
@@ -38,15 +40,3 @@ capabilities:
         allow:
           - api.anthropic.com:443
           - api.openai.com:443
-          - openrouter.ai:443
-          - '*.openrouter.ai:443'
-          - generativelanguage.googleapis.com:443
-          - api.telegram.org:443
-          - discord.com:443
-          - '*.discord.com:443'
-          - slack.com:443
-          - '*.slack.com:443'
-          - api.github.com:443
-          - github.com:443
-          - pypi.org:443
-          - files.pythonhosted.org:443
