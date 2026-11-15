@@ -1,4 +1,3 @@
-# syntax=docker/sandbox-kit:3
 ARG EVONIC_REF=c902fae060192ac6261697598ce0034ce10b5819
 FROM python:3.12-slim-bookworm
 
