@@ -18,8 +18,6 @@ args:
 provides: ["evonic-agent@0.1.0"]
 
 capabilities:
-  - type: com.docker.sandbox/long-running@1
-
   - type: com.docker.sandbox/port@1
     description: Evonic dashboard
     config: {name: http, container: 8080}

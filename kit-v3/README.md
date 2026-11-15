@@ -2,6 +2,8 @@
 
 This workload packages Evonic from upstream commit `c902fae060192ac6261697598ce0034ce10b5819` and starts its Flask dashboard on `0.0.0.0:8080`. The first-run `/setup` route is unauthenticated until an administrator account is created; only expose the forwarded UI privately and finish setup immediately.
 
+The `com.docker.sandbox/long-running@1` capability is intentionally omitted: APD cloud sandboxes do not support it (local-only, per the Kit capability support matrix). The Flask process is the workload's main process, and the cloud console keeps the sandbox alive while it runs.
+
 Evonic's first-run setup creates agents with `sandbox_enabled=0` by default. That fallback runs agent tools as local subprocesses inside the APD sandbox, without a nested Docker daemon. It is less isolated than per-agent Docker sandboxing; the APD sandbox remains the outer security boundary.
 
 ## Build locally
