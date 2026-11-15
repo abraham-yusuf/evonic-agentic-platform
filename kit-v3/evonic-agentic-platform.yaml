@@ -6,7 +6,6 @@ sourceUrl: https://github.com/anvie/evonic
 licenses: [AGPL-3.0-only]
 
 kind: workload
-name: evonic-agentic-platform
 version: "0.1.0"
 
 args:
