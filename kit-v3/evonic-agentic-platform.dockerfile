@@ -1,4 +1,3 @@
-ARG EVONIC_REF=c902fae060192ac6261697598ce0034ce10b5819
 FROM python:3.12-slim-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -15,8 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean
 
 RUN useradd --create-home --uid 10001 --shell /bin/bash evonic \
-    && git clone --depth 1 --branch "${EVONIC_REF}" \
-       https://github.com/anvie/evonic.git /opt/evonic
+    && git clone https://github.com/anvie/evonic.git /opt/evonic \
+    && git -C /opt/evonic checkout c902fae060192ac6261697598ce0034ce10b5819
 
 WORKDIR /opt/evonic
 RUN python -m pip install --no-cache-dir --upgrade pip \
