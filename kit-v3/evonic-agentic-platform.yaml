@@ -1,0 +1,55 @@
+# syntax=docker/sandbox-kit:3
+schemaVersion: "3"
+displayName: Evonic Agentic Platform
+description: Evonic agent dashboard with local subprocess tool execution.
+sourceUrl: https://github.com/anvie/evonic
+licenses: [AGPL-3.0-only]
+
+kind: workload
+name: evonic-agentic-platform
+version: "0.1.0"
+
+args:
+  version:
+    default: "c902fae060192ac6261697598ce0034ce10b5819"
+    pattern: '^[A-Za-z0-9._/-]+$'
+    description: Evonic git ref to build
+    buildArg: EVONIC_REF
+
+provides: ["evonic-agent@${{ kit.args.version }}"]
+
+capabilities:
+  - type: com.docker.sandbox/long-running@1
+
+  - type: com.docker.sandbox/port@1
+    description: Evonic dashboard
+    config: {name: http, container: 8080, family: ipv4}
+
+  - type: com.docker.sandbox/volume@1
+    description: Persistent Evonic data and shared files
+    config: {path: /opt/evonic/shared, size: 2g}
+
+  - type: com.docker.sandbox/network-policy@1
+    config:
+      install:
+        allow:
+          - pypi.org
+          - files.pythonhosted.org
+          - github.com
+          - codeload.github.com
+      runtime:
+        allow:
+          - api.anthropic.com:443
+          - api.openai.com:443
+          - openrouter.ai:443
+          - '*.openrouter.ai:443'
+          - generativelanguage.googleapis.com:443
+          - api.telegram.org:443
+          - discord.com:443
+          - '*.discord.com:443'
+          - slack.com:443
+          - '*.slack.com:443'
+          - api.github.com:443
+          - github.com:443
+          - pypi.org:443
+          - files.pythonhosted.org:443
