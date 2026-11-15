@@ -22,7 +22,7 @@ capabilities:
 
   - type: com.docker.sandbox/port@1
     description: Evonic dashboard
-    config: {name: http, container: 8080, family: ipv4}
+    config: {name: http, container: 8080}
 
   - type: com.docker.sandbox/volume@1
     description: Persistent Evonic data and shared files
