@@ -9,13 +9,13 @@ kind: workload
 version: "0.1.0"
 
 args:
-  version:
+  upstreamRef:
     default: "c902fae060192ac6261697598ce0034ce10b5819"
     pattern: '^[A-Za-z0-9._/-]+$'
-    description: Evonic git ref to build
+    description: Pinned upstream Evonic git ref to build
     buildArg: EVONIC_REF
 
-provides: ["evonic-agent@${{ kit.args.version }}"]
+provides: ["evonic-agent@0.1.0"]
 
 capabilities:
   - type: com.docker.sandbox/long-running@1
