@@ -28,6 +28,11 @@ capabilities:
     description: Persistent Evonic data and shared files
     config: {path: /opt/evonic/shared, size: 2g}
 
+  - type: com.docker.sandbox/resources@1
+    config:
+      cpu: 8.0
+      memory: 16g
+
   - type: com.docker.sandbox/network-policy@1
     config:
       install:
@@ -38,5 +43,32 @@ capabilities:
           - codeload.github.com
       runtime:
         allow:
+          - '*.discord.com:443'
+          - '*.openrouter.ai:443'
+          - '*.slack.com:443'
           - api.anthropic.com:443
+          - api.github.com:443
           - api.openai.com:443
+          - api.telegram.org:443
+          - codeload.github.com
+          - discord.com:443
+          - files.pythonhosted.org:443
+          - generativelanguage.googleapis.com:443
+          - github.com:443
+          - openrouter.ai:443
+          - pypi.org:443
+          - slack.com:443
+          - api.xingchiapi.com:443
+          - '*.xingchiapi.com'
+          - raon-api.krafton.ai:443
+          - raon-api.krafton.ai
+          - raon-mini.krafton.ai
+          - '*.krafton.ai'
+          - api.tokenlab.amd.com:443
+          - api.tokenlab.amd.com
+          - '*.amd.com'
+          - trycloudflare.com
+          - '*.trycloudflare.com'
+          - cloudflare.com:443
+          - '*.cloudflare.com'
+          - alarm-pour-impacts-numerous.trycloudflare.com
